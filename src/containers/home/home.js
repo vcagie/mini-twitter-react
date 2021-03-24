@@ -12,48 +12,74 @@ import {
   postTweet,
   putEditedTweet,
   deleteTweet,
-  getTweetData
+  getTweetData,
 } from "../../services/homeService";
 import RightBar from "../../components/home/rightBar";
+import SortIcon from "@material-ui/icons/Sort";
 
 function getUsername() {
   const usernameString = sessionStorage.getItem("username");
   const username = JSON.parse(usernameString);
-  return username ;
+  return username;
 }
 
 const Home = () => {
   const [newTweet, setNewTweet] = useState("");
   const [tweets, setTweets] = useState([]);
+  const [filteredTweet, setFilteredTweet] = useState([]);
   const [username] = useState(getUsername);
+  const [isAsc, setIsAsc] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const handleSubmit = async e =>{
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if(newTweet !== ""){
+    if (newTweet !== "") {
       const res = await postTweet(newTweet, username);
-      setNewTweet("");    
+      setNewTweet("");
       setTweets([res.body, ...tweets]);
+      setFilteredTweet([res.body, ...tweets]);
     }
-  }
+  };
 
-  const handleDeleteTweet = async(tweetId) => {
+  const handleDeleteTweet = async (tweetId) => {
     await deleteTweet(tweetId);
-    setTweets(tweets.filter((tweet) => tweet.tweetid !== tweetId));
-  }
+    setFilteredTweet(tweets.filter((tweet) => tweet.tweetid !== tweetId));
+  };
 
-  const editTweet = async(tweetid, tweetContent)=>{
+  const editTweet = async (tweetid, tweetContent) => {
     await putEditedTweet(tweetid, tweetContent);
-    setTweets(
+    setFilteredTweet(
       tweets.map((tweet) =>
         tweet.tweetid === tweetid ? { ...tweet, tweet: tweetContent } : tweet
       )
     );
-  }
+  };
+
+  const searchTweet = (value) => {
+    setSearch(value);
+    setFilteredTweet(
+      tweets.filter((tweet) => tweet.tweet.toLowerCase().includes(value))
+    );
+  };
+
+  const sortTweets = () => {
+    setIsAsc(!isAsc);
+    setFilteredTweet(
+      tweets
+        .filter((tweet) => tweet.tweet.toLowerCase().includes(search))
+        .sort((a, b) =>
+          isAsc ? (a.tweet > b.tweet ? -1 : 1) : a.tweet > b.tweet ? 1 : -1
+        )
+    );
+
+    console.log(filteredTweet);
+  };
 
   useEffect(() => {
     async function fetchData() {
       const request = await getTweetData();
       setTweets(request.data);
+      setFilteredTweet(request.data);
       return request;
     }
     fetchData();
@@ -64,6 +90,7 @@ const Home = () => {
       <div className="mainContent">
         <div className="homeTitle">
           <span>Home</span>
+          <SortIcon onClick={sortTweets} />
         </div>
         <div className="tweetContainer">
           <div className="photoContainer">
@@ -86,7 +113,7 @@ const Home = () => {
                 <SentimentSatisfiedOutlinedIcon className="iconImage" />
                 <ScheduleOutlinedIcon className="iconImage" />
               </div>
-              <div className="tweetButton" onClick={handleSubmit} >
+              <div className="tweetButton" onClick={handleSubmit}>
                 <span>Tweet</span>
               </div>
             </div>
@@ -95,7 +122,7 @@ const Home = () => {
 
         <div className="contentBorder"></div>
 
-        {tweets.map((tweet, i) => {
+        {filteredTweet.map((tweet, i) => {
           return (
             <TweetSection
               tweetData={tweet}
@@ -108,7 +135,7 @@ const Home = () => {
         })}
       </div>
       <div className="rightBar">
-        <RightBar />
+        <RightBar searchTweet={searchTweet} />
       </div>
     </HomeWrapper>
   );

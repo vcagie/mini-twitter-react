@@ -3,15 +3,16 @@ import React from "react";
 import SearchIcon from "@material-ui/icons/Search";
 import { RightBarWrapper, useSearchStyles } from "./rightBar.style";
 
-const RightBar = () => {
+const RightBar = ({searchTweet}) => {
   const classes = useSearchStyles();
+
   return (
     <RightBarWrapper>
       <Paper component="form" className={classes.root}>
         <IconButton className={classes.iconButton} aria-label="menu">
           <SearchIcon />
         </IconButton>
-        <InputBase className={classes.input} placeholder="Search Twitter" />
+        <InputBase className={classes.input} placeholder="Search Twitter" onChange={(e) => searchTweet(e.target.value)}/>
       </Paper>
 
       <div className="trendBox">

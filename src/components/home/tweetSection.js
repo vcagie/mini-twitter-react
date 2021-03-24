@@ -34,7 +34,7 @@ const TweetSection = ({ tweetData, loginUsername, deleteTweet, editTweet }) => {
   const dateJSON = tweetData.updatedat;
   const tweetContent = tweetData.tweet;
 
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  const options = { year: 'numeric', month: 'short', day: 'numeric' , hour: 'numeric', minute: 'numeric', second: 'numeric'};
   const date = new Date(dateJSON).toLocaleDateString("en-US", options);
 
 
@@ -204,7 +204,7 @@ const TweetSection = ({ tweetData, loginUsername, deleteTweet, editTweet }) => {
                   className={`${editModalClasses.deleteButton} ${editModalClasses.btn}`}
                   onClick={handleSubmitEdit}
                 >
-                  Delete
+                  Edit
                 </div>
               </div>
             </div>
